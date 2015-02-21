@@ -19,6 +19,10 @@ class LedControl:
     """
     for pin in self.leds.values():
       wp.softPwmWrite(pin, level)
+  def clean(self):
+    for pin in self.leds.values():
+      wp.softPwmWrite(pin, 0)
+      wp.pinMode(pin, 0)
 
 def main():
   try:

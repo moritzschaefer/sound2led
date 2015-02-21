@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
 
     leds = {'red': 16, 'blue': 20, 'green': 21}
-    last = 1
+    last = 0
     last_time = time.time()
     m = LedControl(leds)
     try:
@@ -24,13 +24,18 @@ if __name__ == "__main__":
             except:
               print "level was reset to 0"
               level = 0
-            a = min(100, max(1, level))
-            next = last+(a-last)*(time.time()-last_time)*3.5
+            a = min(100, max(0, level))
+            if a > last:
+                boost = 7
+            else:
+                boost = 3
+
+            next = last+(a-last)*(time.time()-last_time)*boost
 
             m.setLevel(int(next))
-            print(int(next))
 
             last=next
             last_time=time.time()
     except Exception as e:
+        m.clean()
         print str(e)
