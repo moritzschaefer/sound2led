@@ -6,18 +6,16 @@ import sys
 import pyaudio
 import struct
 import math
-from sound2led import LedControl
+from ledcontrol import LedControl
 
 
-ZERO=12
-ONE=100
 
 FORMAT = pyaudio.paInt16 
 #SHORT_NORMALIZE = (1.0/32768.0)
 SHORT_NORMALIZE = 1
 CHANNELS = 1
 RATE = 48000
-INPUT_BLOCK_TIME = 0.05
+INPUT_BLOCK_TIME = 0.01
 INPUT_FRAMES_PER_BLOCK = int(RATE*INPUT_BLOCK_TIME)
 # if we get this many noisy blocks in a row, increase the threshold
 OVERSENSITIVE = 15.0/INPUT_BLOCK_TIME                    
@@ -90,6 +88,7 @@ class TapTester(object):
                                  channels = CHANNELS,
                                  rate = RATE,
                                  input = True,
+                                 output = True,
                                  input_device_index = device_index,
                                  frames_per_buffer = INPUT_FRAMES_PER_BLOCK)
 
@@ -109,32 +108,3 @@ class TapTester(object):
             return
 
         return get_max( block)
-
-if __name__ == "__main__":
-    tt = TapTester()
-
-    leds = {'red': 16, 'blue': 22, 'green': 15, 'white': 24}
-    last = 0
-    m = LedControl(leds)
-    try:
-        while 1:
-            amp = tt.listen()
-            print amp
-            # convert amp to level
-            try:
-              level = 100*(amp-ZERO)/(ONE-ZERO)
-            except KeyboardInterrupt:
-              raise
-            except:
-              print "level was reset to 0"
-              level = 0
-            level = level if level > 1 else 1
-            level = level if level <=  100 else 100
-            if abs(level-last) > 5:
-                last=level
-                m.setLevel(level)
-                print level
-    except Exception as e:
-        print str(e)
-    m.clean()
-    sys.exit()
